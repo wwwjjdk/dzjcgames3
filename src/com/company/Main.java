@@ -1,0 +1,120 @@
+package com.company;
+
+import java.io.*;
+import java.util.zip.*;
+import  java.util.*;
+
+public class Main {
+     private static Date nd = new Date();
+
+     private static StringBuilder sb = new StringBuilder();
+
+    public static void main(String[] args) throws IOException {
+
+
+        for (String s : Arrays.asList("temp", "src", "res", "savegames")) {
+            createDir("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games", s);
+        }
+
+        createFile("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\temp", "temp.txt" );
+
+        createDir("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\src", "main");
+        createDir("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\src", "test");
+
+        createFile("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\src\\main","Main.java");
+        createFile("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\src\\main","Utils.java");
+
+        for(String s: Arrays.asList("drawables", "vectors","icons")){
+            createDir("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\res", s);
+        }
+
+        try (FileWriter writer = new FileWriter("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\temp\\temp.txt", false)){
+            writer.write(sb.toString());
+            writer.flush();
+        }catch (IOException e){
+            System.err.println(e.getMessage());
+        }
+
+        addSave(new GameProgress(4,5,6,5.3), "C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\save1.dat" );
+        addSave(new GameProgress(3,2,1,10.3), "C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\save2.dat" );
+        addSave(new GameProgress(100,2,66,100.8), "C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\save3.dat" );
+
+
+          String [] strings = {
+                  "C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\save1.dat",
+                  "C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\save2.dat",
+                  "C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\save3.dat"
+          };
+
+
+        addZip("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames\\sout.zip", strings);
+        for(String s : Arrays.asList("save1.dat","save2.dat","save3.dat")){
+            deleteFile("C:\\Users\\gosha\\OneDrive\\Рабочий стол\\js\\Games\\savegames",s);
+        }
+
+
+
+    }
+
+    public static void createDir(String line , String string){
+
+        File dir = new File(line,string);
+        if(dir.mkdir()){
+            sb.append("Директория создана: " + dir.getName() + " " + nd + "\n");
+
+        }
+    }
+
+    public static void createFile(String line, String string ){
+       File myFile = new File(line, string);
+       try{
+           if(myFile.createNewFile()){
+               sb.append("Файл создан: " + myFile.getName() + " " + nd + "\n");
+           }
+       }catch (IOException e){
+           System.err.println(e.getMessage());
+       }
+    }
+
+    public static void addSave(GameProgress gameProgress, String line ){
+
+        try(FileOutputStream fos = new FileOutputStream(line);
+        ObjectOutputStream oos = new ObjectOutputStream(fos)){
+
+          oos.writeObject(gameProgress);
+        }catch(IOException e){
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public static void addZip (String string, String[] list){
+        try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(string))) {
+            for (String item : list) {
+                File nameFile = new File(item);
+                try (FileInputStream fiz = new FileInputStream(item)) {
+
+                    ZipEntry zipE = new ZipEntry(nameFile.getName());
+                    zip.putNextEntry(zipE);
+
+                    byte[] buff = new byte[fiz.available()];
+                    fiz.read(buff);
+                    zip.write(buff);
+
+                    zip.closeEntry();
+                 } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                 }
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());;
+         }
+    }
+    public static void deleteFile (String string, String line ){
+       File dir = new File(string, line);
+       if(dir.delete()){
+           System.out.println("Удален");
+       }
+    }
+
+
+}
